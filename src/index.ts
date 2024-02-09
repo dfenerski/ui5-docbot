@@ -1,3 +1,4 @@
+import { CloseVectorNode } from '@langchain/community/vectorstores/closevector/node';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import {
     ChatPromptTemplate,
@@ -7,10 +8,15 @@ import {
 import { RunnableLambda, RunnableSequence } from '@langchain/core/runnables';
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import 'dotenv/config';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { GithubRepoLoader } from 'langchain/document_loaders/web/github';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { formatDocumentsAsString } from 'langchain/util/document';
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { stdin, stdout } from 'process';
+import { createInterface } from 'readline/promises';
+
+const DOC_PATH = './src/assets/documents.json';
+const VECTOR_STORE_PATH = './src/assets/vectorstore';
 
 export class DocBot {
     private static readonly logger = console;
@@ -26,7 +32,7 @@ export class DocBot {
             branch: 'main',
             recursive: true,
             unknown: 'warn',
-            accessToken: process.env.GITHUB_TOKEN,
+            accessToken: process.env.GITHUB_TOKEN, // Optional
         },
     );
     private static textSplitter = new RecursiveCharacterTextSplitter({
@@ -34,24 +40,57 @@ export class DocBot {
         chunkOverlap: 200,
     });
 
+    private static async getPrompt() {
+        const readInterface = createInterface({
+            input: stdin,
+            output: stdout,
+        });
+        const prompt = await readInterface.question('Ask me a question: ');
+        readInterface.close();
+        return prompt;
+    }
+
     public static async run() {
         // Load the docs
         this.logger.log('Loading documents...');
-        const docs = await this.documentLoader.load();
-        // Split into processable chunks
-        this.logger.log('Splitting documents...');
-        const splits = await this.textSplitter.splitDocuments(docs);
+        const docs = await (async () => {
+            // Reuse loaded json if it exists
+            if (existsSync(DOC_PATH)) {
+                return JSON.parse(readFileSync(DOC_PATH, 'utf8'));
+            }
+            // Otherwise use git repo web loader to retrieve them
+            const docs = await this.documentLoader.load();
+            // Store retrieved docs for later use
+            writeFileSync(DOC_PATH, JSON.stringify(docs), 'utf-8');
+            return docs;
+        })();
         // Store the chunks in a vector database
         this.logger.log('Storing vectors...');
-        const vectorStore = await MemoryVectorStore.fromDocuments(
-            splits,
-            new OpenAIEmbeddings(),
-        );
+        const vectorStore = await (async () => {
+            // Reuse loaded vector store if it exists
+            if (existsSync(VECTOR_STORE_PATH)) {
+                return CloseVectorNode.load(
+                    VECTOR_STORE_PATH,
+                    new OpenAIEmbeddings(),
+                );
+            }
+            // Split into processable chunks
+            this.logger.log('Splitting documents...');
+            const splits = await this.textSplitter.splitDocuments(docs);
+            // Create vector store from the splits
+            const vectorStore = await CloseVectorNode.fromDocuments(
+                splits,
+                new OpenAIEmbeddings(),
+            );
+            // Save the vector store for later use
+            await vectorStore.save(VECTOR_STORE_PATH);
+            return vectorStore;
+        })();
         // Create a retriever from the vector store
         const retriever = vectorStore.asRetriever();
         //
         this.logger.log('Ready to chat!');
-        // return;
+        //
         const res = await RunnableSequence.from([
             new RunnableLambda({
                 func: async ({ prompt }: any) => {
@@ -80,8 +119,9 @@ export class DocBot {
             this.model,
             this.outputParser,
         ]).invoke({
-            prompt: 'How do I export data to Excel?',
+            prompt: await this.getPrompt(),
         });
+        //
         this.logger.error(res);
     }
 }
