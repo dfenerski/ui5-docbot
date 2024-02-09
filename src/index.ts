@@ -119,7 +119,7 @@ export class DocBot {
             this.model,
             this.outputParser,
         ]).invoke({
-            prompt: await this.getPrompt(),
+            prompt: process.argv[2] || (await this.getPrompt()),
         });
         //
         this.logger.error(res);
