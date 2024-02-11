@@ -62,7 +62,7 @@ export class DocBot {
             writeFileSync(DOC_PATH, JSON.stringify(docs), 'utf-8');
             return docs;
         })();
-        // Store the chunks in a vector database
+        // Store the chunks in a in-memory vector database
         this.logger.log('Storing vectors...');
         const vectorStore = await (async () => {
             // Reuse loaded vector store if it exists
