@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "Example node application demonstrating basic usage of the LangChain AI framework for SAP-specific knowledge",
     "main": "index.ts",
+    "type": "module",
     "scripts": {
         "start": "tsx src/index.ts"
     },
