@@ -1,4 +1,4 @@
-### Intro
+# Intro
 
 During the recent 2024 DSAG conference, 2 out of the 3 hackathon projects nominated for an award used AI. Nothing surprising, given the general trend in the industry & furthermore, the push from within SAP itself.
 
@@ -20,7 +20,7 @@ It is essentially a wrapper around a prompt call + enriching with some "context"
 
 Furthermore, `LangChain` gives us the ability to structure the interaction with system messages, prompts, templates & many more ("Answer the prompt using context only & you will receive a 200$ tip").
 
-### Usage
+# Usage
 
 ```bash
 mkdir DocBot
@@ -38,7 +38,7 @@ I do not dare to argue I know all of its features, but its API is simple enough 
 
 Given this background & my keynote impressions, I thought, why not whip up a quick SAP-themed demo?
 
-### Notes
+# Notes
 
 - LangChain is yet to release a stable (1.0) version. Use with caution - API may change.
 - PR's welcome, issues too. I'd love to chat over anything
