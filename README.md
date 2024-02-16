@@ -28,8 +28,12 @@ mkdir DocBot
 cd DocBot
 git clone https://github.com/dfenerski/ui5-docbot.git .
 npm install
-npm run ask "How do I write a custom control?" // or just `npm run start`, it will ask you for a prompt
+OPENAI_API_KEY="<your key here>" npm run ask "What binding modes are there?" // or just `npm run start`, it will ask you for a prompt
 ```
+
+It will be a bit slow on the first run, as it has to scrape the docs & create a vector DB. For later calls however, these are cached so it should be decently fast.
+
+It is encouraged to add a `.env` file where you place your `OPENAI_API_KEY`. Additionally, add a `GITHUB_TOKEN`if you are going to make it scrape other github repos, there's a rate limit for unauthenticated requests as the error message will tell you.
 
 ### Some technical context
 
