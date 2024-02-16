@@ -30,7 +30,9 @@ export class DocBot {
             branch: 'main',
             recursive: true,
             unknown: 'warn',
-            accessToken: process.env.GITHUB_TOKEN, // Optional
+            ...(process.env.GITHUB_TOKEN
+                ? { accessToken: process.env.GITHUB_TOKEN }
+                : {}),
         },
     );
     private static textSplitter = new RecursiveCharacterTextSplitter({
