@@ -46,6 +46,6 @@ Given this background & my keynote impressions, I thought, why not whip up a qui
 # Notes
 
 -   LangChain is yet to release a stable (1.0) version. Use with caution - API may change.
--   PR's welcome, issues too. I'd love to chat over anything
+-   PRs welcome, issues too. I'd love to chat over anything
 -   A thought: maybe [pr36-io/cap-ui5-gpt-chat](https://github.com/p36-io/cap-ui5-gpt-chat) can use similar custom BE service, with custom knowledge? However connecting a UI5 frontend to the DocBot only makes sense if it's actually useful, I as author can difficultly weigh its merits...
--   Give this repo a ⭐ if you've found this useful!
+-   Give this repo a ⭐ if you've found it useful!
