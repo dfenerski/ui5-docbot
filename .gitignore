@@ -1,4 +1,5 @@
 .obsidian
 .env
 node_modules
-assets
+assets/vectorstore
+assets/documents.json
